@@ -74,3 +74,41 @@ class User(models.Model):
 #     created_at=models.DateTimeField(auto_now_add=True)
 #     updated_at=models.DateTimeField(auto_now=True)
 #     objects=tripManager() 
+
+# Product
+# class ProductManager(models.Manager) :
+#     def validator(self, postData):
+#         errors={}
+        # name
+        # if len(postData['name'])==0:
+        #     errors['name']="Product name is a required field"        
+        # elif len(postData['name'])<5:
+        #     errors['name']="Product name should be at least 5 characters"
+
+        # price
+        # if len(postData['price'])==0:
+        #     errors['price']="Price is a required field"        
+        # elif postData['price']<0:
+        #     errors['price']="No free items here ...this is a business"
+        # description
+        # return errors
+
+
+class Product(models.Model) :
+    name = models.CharField(max_length=255)
+    price = models.FloatField()
+    description = models.TextField()
+    fragrance = models.ForeignKey(Fragrance, related_name="products")
+    size = models.ForeignKey(Size, related_name="products")
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
+
+class Fragrance(models.Model) :
+    name = models.CharField(max_length=255)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
+
+class Size(models.Model) :
+    name = models.CharField(max_length=45)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)   
