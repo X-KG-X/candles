@@ -8,6 +8,7 @@ def index(request):
     print("*"*50, "I am in index")
     return render(request,"candle_app/index.html")
 
+## testing push -- messy
 def check_registration(request):
     print("*"*50, "I am in index")
     errors=User.objects.login_validator(request.POST)
@@ -21,6 +22,7 @@ def check_registration(request):
         # messages.error(request, "Successfully registered (or logined in)!")
         return redirect("/dashboard")
         # return HttpResponse("sdjyusdy")
+
 def check_login(request):
     print("*"*50, "I am in check_login")
     try:
