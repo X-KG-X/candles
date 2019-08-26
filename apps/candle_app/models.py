@@ -93,6 +93,15 @@ class User(models.Model):
         # description
         # return errors
 
+class Fragrance(models.Model) :
+    name = models.CharField(max_length=255)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
+
+class Size(models.Model) :
+    name = models.CharField(max_length=45)
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)   
 
 class Product(models.Model) :
     name = models.CharField(max_length=255)
@@ -103,12 +112,3 @@ class Product(models.Model) :
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
-class Fragrance(models.Model) :
-    name = models.CharField(max_length=255)
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)
-
-class Size(models.Model) :
-    name = models.CharField(max_length=45)
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)   
