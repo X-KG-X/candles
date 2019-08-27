@@ -55,7 +55,8 @@ def dashboard(request):
     context={
         'user':user,
         'all_products':product,
-    }
+        'range' : range(10)
+    } 
     return render(request,"candle_app/dashboard.html", context)
  
 
