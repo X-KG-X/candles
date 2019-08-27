@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Dashboard</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        {% load static %}
+        <link rel="stylesheet" href="{% static  'candle_app/css/dashboard.css'%}">
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <!-- Optional JavaScript -->
+        <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+        {% load static %}
+    </head>
+    <body class="container mt-5 mb-5">
+        <div class="row">
+            <h3 class="col-8">Welcome, {{user.first_name}}! </h3>
+            <a href="/history" class="btn btn-success ">Order History</a>
+
+            <a href="/cart" class="btn btn-success ml-2">Your Cart</a>
+            <a href="/logoff"  class="col ml-2 btn btn-primary">Log Out</a>
+        </div>  
+
+        <div class="mt-30">
+            <form action="/search_item" method="post" class="form-inline my-2 my-lg-0">
+                {% csrf_token %}
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="search">
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                <a href="/dashboard" class="btn btn-info ml-1">Go back</a>
+            </form>
+        </div>
+        {% if num_search == 0 %}
+            <h5 class="mt-30"> No Search Result with keyword : {{keyword}}</h5>
+        {% endif %}
+
+        {% if products_keyword_in_name %}
+
+            <h5 class="mt-30">Search result : <span class="bg-warning">{{keyword}}</span> in product name</h5>
+            <div class="mt-3 row">
+                {% for product in products_keyword_in_name %}
+                <div class="col-3">
+                    <a href="/detail/{{product.id}}">
+                        {% if product.size == "small" %}
+                            {% with 'candle_app/images/'|add:product.fragrance|add:'_2.jpg' as image_static %}
+                            <img src="{% static image_static %}"/> 
+                            {% endwith %}
+                        {% elif product.size == "large" %}
+                            {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
+                            <img src="{% static image_static %}"/> 
+                            {% endwith %}
+                        {% endif %}
+                    </a>
+                    <br>
+                    <p class="text-center m-0">{{product.name}} 
+                    <p class="text-center m-0">({{product.size}})</p>
+
+                    <form action="/add/{{product.id}}" method="post" class="mt-3">
+                        {% csrf_token %}
+                        <select name="quantity" class="col-sm-2 offset-sm-2">
+                            {% for i in range %}
+                                <option value={{i}}>{{i}}</option>
+                            {% endfor %}
+                        </select>
+
+                    <input type="submit" class=" btn btn-primary btn-sm " value="Add to cart">
+                    </form>
+                </div>
+                    {% endfor %}  
+            </div>
+        {% endif %}
+
+        {% if products_keyword_in_desc %}
+            <h5 class="mt-30">Search result : <span class="bg-warning">{{keyword}}</span> in product description</h5>
+            <div class="mt-3 row">
+                {% for product in products_keyword_in_desc %}
+                <div class="col-3">
+                    <a href="/detail/{{product.id}}">
+                        {% if product.size == "small" %}
+                            {% with 'candle_app/images/'|add:product.fragrance|add:'_2.jpg' as image_static %}
+                            <img src="{% static image_static %}"/> 
+                            {% endwith %}
+                        {% elif product.size == "large" %}
+                            {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
+                            <img src="{% static image_static %}"/> 
+                            {% endwith %}
+                        {% endif %}
+                    </a>
+                    <br>
+                    <p class="text-center m-0">{{product.name}} 
+                    <p class="text-center m-0">({{product.size}})</p>
+
+                    <form action="/add/{{product.id}}" method="post" class="mt-3">
+                        {% csrf_token %}
+                        <select name="quantity" class="col-sm-2 offset-sm-2">
+                            {% for i in range %}
+                                <option value={{i}}>{{i}}</option>
+                            {% endfor %}
+                        </select>
+
+                    <input type="submit" class=" btn btn-primary btn-sm " value="Add to cart">
+                    </form>
+                </div>
+                    {% endfor %}  
+            </div>
+        {% endif %}
+
+        {% if products_keyword_in_size %}
+            <h5 class="mt-30">Search result : <span class="bg-warning">{{keyword}}</span> by product size</h5>
+            <div class="mt-3 row">
+                {% for product in products_keyword_in_size %}
+                <div class="col-3">
+                    <a href="/detail/{{product.id}}">
+                        {% if product.size == "small" %}
+                            {% with 'candle_app/images/'|add:product.fragrance|add:'_2.jpg' as image_static %}
+                            <img src="{% static image_static %}"/> 
+                            {% endwith %}
+                        {% elif product.size == "large" %}
+                            {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
+                            <img src="{% static image_static %}"/> 
+                            {% endwith %}
+                        {% endif %}
+                    </a>
+                    <br>
+                    <p class="text-center m-0">{{product.name}} 
+                    <p class="text-center m-0">({{product.size}})</p>
+
+                    <form action="/add/{{product.id}}" method="post" class="mt-3">
+                        {% csrf_token %}
+                        <select name="quantity" class="col-sm-2 offset-sm-2">
+                            {% for i in range %}
+                                <option value={{i}}>{{i}}</option>
+                            {% endfor %}
+                        </select>
+
+                    <input type="submit" class=" btn btn-primary btn-sm " value="Add to cart">
+                    </form>
+                </div>
+                    {% endfor %}  
+            </div>
+        {% endif %}
+    </body>
+</html>

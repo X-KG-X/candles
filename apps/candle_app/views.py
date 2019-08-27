@@ -31,11 +31,11 @@ def check_login(request):
         if bcrypt.checkpw(request.POST['login_pwd'].encode(), user.password.encode()):
             print("password match")
             request.session['right_user_id']=User.objects.get(email=request.POST['login_email']).id
-            if not user.order.all():
+            print(request.session['right_user_id'])
+            if user.order.all().count()<1:
                 request.session['cart_id']=1
             else:
-                request.session['cart_id']=user.order.last()+1
-            print(request.session['right_user_id'])
+                request.session['cart_id']=user.order.last().id+1
             return redirect("/dashboard")
             # return HttpResponse("sdkbfilusd")
         else:
@@ -94,7 +94,7 @@ def cart(request):
     if 'right_user_id' not in request.session:
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
-    orders=Order.objects.filter(cart_id=request.session['cart_id'])
+    orders=Order.objects.filter(cart_id=request.session['cart_id'], user=user)
     total=0
     for order in orders:
         total+=order.quantity*order.product.price
@@ -127,20 +127,46 @@ def remove(request, order_id):
     return redirect("/cart")
 
 # search keyword from search bar in product database
-# def search_item(request) :
-#     keyword = request.POST['search']
+def search_item(request) :
+    if 'search' not in request.POST :
+        return redirect("/dashboard")
 
-#     # keyword - search in product
-#     products_keyword_in_name = Product.objects.filter(name__icontains=keyword)
-#     products_keyword_in_descp = Product.objects.filter(description__icontains=keyword)
-#     products_keyword_in_size = Product.objects.filter(size_icontains=keyword)
+    keyword = request.POST['search'].lower()
+    user=User.objects.get(id=request.session['right_user_id'])
 
-#     user=User.objects.get(id=request.session['right_user_id'])
-#     # CHANGE THIS
-#     product = products_keyword_in_name
-#     context={
-#         'user':user,
-#         'all_products':product,
-#         'range' : range(10)
-#     } 
-#     return render(request, "candle_app/dashboard.html", context)
+    if (keyword == "") :
+        return redirect("/dashboard")
+
+    elif (keyword in ['large', 'small']) :
+        products_keyword_in_size = Product.objects.filter(size__icontains=keyword)
+        num_search = len(products_keyword_in_size)
+        context={
+        'user':user,
+        'keyword' : keyword,
+        'num_search' : num_search,
+        'products_keyword_in_size' : products_keyword_in_size,
+        'range' : range(10),
+        } 
+        
+        # return render(request, "candle_app/dashboard.html", context)
+        return render(request, "candle_app/dashboard_searched.html", context)
+    
+    else :
+        # keyword - search in product
+        products_keyword_in_name = Product.objects.filter(name__icontains=keyword)
+        products_keyword_in_desc = Product.objects.filter(description__icontains=keyword)
+        
+        num_search = len(products_keyword_in_name) + len(products_keyword_in_desc) 
+        # CHANGE THIS
+        # product = products_keyword_in_name
+        context={
+            'user':user,
+            'keyword' : keyword,
+            'num_search' : num_search,
+            # 'all_products':product,
+            'products_keyword_in_name' : products_keyword_in_name,
+            'products_keyword_in_desc' : products_keyword_in_desc,
+            'range' : range(10),
+        } 
+        # return render(request, "candle_app/dashboard.html", context)
+        return render(request, "candle_app/dashboard_searched.html", context)
