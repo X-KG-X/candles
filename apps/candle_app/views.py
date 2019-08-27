@@ -79,18 +79,68 @@ def detail(request, product_id):
     return render(request, "candle_app/detail.html", context)
 
 
-def add(request, quantity, product_id):
+def add(request, product_id):
     print("*"*50, "I am in add")
     if 'right_user_id' not in request.session:
         return redirect("/")
+    quantity=request.POST['quantity']
     user=User.objects.get(id=request.session['right_user_id'])
     product=Product.objects.get(id=product_id)
-    Order.objects.create(session_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
+    Order.objects.create(cart_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
+    return redirect("/cart")
+
+def cart(request):
+    print("*"*50, "I am in cart")
+    if 'right_user_id' not in request.session:
+        return redirect("/")
+    user=User.objects.get(id=request.session['right_user_id'])
+    orders=Order.objects.filter(cart_id=request.session['cart_id'])
+    total=0
+    for order in orders:
+        total+=order.quantity*order.product.price
     context={
-        'user':User.objects.get(id=request.session['right_user_id']),
+        'orders':orders,
+        'user':user,
+        'total':total,
     }
-    # return HttpResponse("dsgfufdsyg")
-    return render(request,"candle_app/add.html", context)
+    return render(request,"candle_app/cart.html", context)
+
+def history(request):
+    print("*"*50, "I am in history")
+    if 'right_user_id' not in request.session:
+        return redirect("/")
+    user=User.objects.get(id=request.session['right_user_id'])
+    user_orders=Order.objects.filter(user=user)
+    context={
+        'user':user,
+        'user_orders':user_orders,
+    }
+    return render(request,"candle_app/history.html", context)
 
 
+def remove(request, order_id):
+    print("*"*50, "I am in history")
+    if 'right_user_id' not in request.session:
+        return redirect("/")
+    order=Order.objects.get(id=order_id)
+    order.delete()
+    return redirect("/cart")
+
+# search keyword from search bar in product database
 # def search_item(request) :
+#     keyword = request.POST['search']
+
+#     # keyword - search in product
+#     products_keyword_in_name = Product.objects.filter(name__icontains=keyword)
+#     products_keyword_in_descp = Product.objects.filter(description__icontains=keyword)
+#     products_keyword_in_size = Product.objects.filter(size_icontains=keyword)
+
+#     user=User.objects.get(id=request.session['right_user_id'])
+#     # CHANGE THIS
+#     product = products_keyword_in_name
+#     context={
+#         'user':user,
+#         'all_products':product,
+#         'range' : range(10)
+#     } 
+#     return render(request, "candle_app/dashboard.html", context)
