@@ -57,58 +57,28 @@ class loginManager(models.Manager):
 class User(models.Model):
     first_name=models.CharField(max_length=45)
     last_name=models.CharField(max_length=45)
+    seller=models.BooleanField(default=False)
     email=models.CharField(max_length=45)
     password=models.CharField(max_length=255)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
     objects=loginManager() 
 
-# class Trip(models.Model):
-#     place=models.CharField(max_length=45)
-#     start=models.DateField()
-#     end=models.DateField()
-#     plan=models.CharField(max_length=255)
-#     joined_by=models.ForeignKey(User, related_name="joined", null=True)
-#     added_by=models.ForeignKey(User, related_name="trip")
-#     trip_goers=models.ManyToManyField(User, related_name="trip_joined")
-#     created_at=models.DateTimeField(auto_now_add=True)
-#     updated_at=models.DateTimeField(auto_now=True)
-#     objects=tripManager() 
-
-# Product
-# class ProductManager(models.Manager) :
-#     def validator(self, postData):
-#         errors={}
-        # name
-        # if len(postData['name'])==0:
-        #     errors['name']="Product name is a required field"        
-        # elif len(postData['name'])<5:
-        #     errors['name']="Product name should be at least 5 characters"
-
-        # price
-        # if len(postData['price'])==0:
-        #     errors['price']="Price is a required field"        
-        # elif postData['price']<0:
-        #     errors['price']="No free items here ...this is a business"
-        # description
-        # return errors
-
-class Fragrance(models.Model) :
-    name = models.CharField(max_length=255)
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)
-
-class Size(models.Model) :
-    name = models.CharField(max_length=45)
-    created_at=models.DateTimeField(auto_now_add=True)
-    updated_at=models.DateTimeField(auto_now=True)   
-
 class Product(models.Model) :
     name = models.CharField(max_length=255)
     price = models.FloatField()
     description = models.TextField()
-    fragrance = models.ForeignKey(Fragrance, related_name="products")
-    size = models.ForeignKey(Size, related_name="products")
+    fragrance = models.CharField(max_length=255)
+    size = models.CharField(max_length=45)
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
+class Order(models.Model) :
+    cart_id = models.PositiveIntegerField()
+    user= models.ForeignKey(User, related_name="order")
+    product = models.ForeignKey(Product, related_name="product")
+    quantity=models.PositiveIntegerField()
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
+
+    

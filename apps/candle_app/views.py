@@ -19,6 +19,7 @@ def check_registration(request):
     else:
         right_user=User.objects.create(first_name=request.POST['f_name'],last_name=request.POST['l_name'], email=request.POST['register_email'],password=bcrypt.hashpw(request.POST['register_pwd'].encode(), bcrypt.gensalt()))
         request.session['right_user_id']=right_user.id
+        request.session['cart_id']=1
         # messages.error(request, "Successfully registered (or logined in)!")
         return redirect("/dashboard")
         # return HttpResponse("sdjyusdy")
@@ -30,6 +31,10 @@ def check_login(request):
         if bcrypt.checkpw(request.POST['login_pwd'].encode(), user.password.encode()):
             print("password match")
             request.session['right_user_id']=User.objects.get(email=request.POST['login_email']).id
+            if not user.order.all():
+                request.session['cart_id']=1
+            else:
+                request.session['cart_id']=user.order.last()+1
             print(request.session['right_user_id'])
             return redirect("/dashboard")
             # return HttpResponse("sdkbfilusd")
@@ -46,10 +51,10 @@ def dashboard(request):
     if 'right_user_id' not in request.session:
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
-    trip=Trip.objects.all()
+    product=Product.objects.all()
     context={
         'user':user,
-        'all_trips':trip,
+        'all_products':product,
     }
     return render(request,"candle_app/dashboard.html", context)
  
@@ -61,11 +66,25 @@ def logoff(request):
     request.session.clear()
     return redirect("/")
 
+def detail(request, product_id):
+    print("*"*50, "I am in add")
+    if 'right_user_id' not in request.session:
+        return redirect("/") 
+    context={
+        'product': Product.objects.get(id=product_id),
+        'user':User.objects.get(id=request.session['right_user_id']),
 
-def add(request):
+    }
+    return render(request, "candle_app/detail.html", context)
+
+
+def add(request, quantity, product_id):
     print("*"*50, "I am in add")
     if 'right_user_id' not in request.session:
         return redirect("/")
+    user=User.objects.get(id=request.session['right_user_id'])
+    product=Product.objects.get(id=product_id)
+    Order.objects.create(session_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
     context={
         'user':User.objects.get(id=request.session['right_user_id']),
     }
