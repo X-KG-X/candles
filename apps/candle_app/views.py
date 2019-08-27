@@ -31,11 +31,11 @@ def check_login(request):
         if bcrypt.checkpw(request.POST['login_pwd'].encode(), user.password.encode()):
             print("password match")
             request.session['right_user_id']=User.objects.get(email=request.POST['login_email']).id
-            if not user.order.all():
+            print(request.session['right_user_id'])
+            if user.order.all().count()<1:
                 request.session['cart_id']=1
             else:
-                request.session['cart_id']=user.order.last()+1
-            print(request.session['right_user_id'])
+                request.session['cart_id']=user.order.last().id+1
             return redirect("/dashboard")
             # return HttpResponse("sdkbfilusd")
         else:
@@ -94,7 +94,7 @@ def cart(request):
     if 'right_user_id' not in request.session:
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
-    orders=Order.objects.filter(cart_id=request.session['cart_id'])
+    orders=Order.objects.filter(cart_id=request.session['cart_id'], user=user)
     total=0
     for order in orders:
         total+=order.quantity*order.product.price
