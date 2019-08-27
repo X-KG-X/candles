@@ -91,3 +91,6 @@ def add(request, quantity, product_id):
     }
     # return HttpResponse("dsgfufdsyg")
     return render(request,"candle_app/add.html", context)
+
+
+# def search_item(request) :

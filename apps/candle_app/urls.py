@@ -10,4 +10,6 @@ urlpatterns=[
     url(r'^dashboard$',views.dashboard),
     url(r'^logoff$', views.logoff),
 
+    url(r'^search_item$', views.search_item), # search item with string from search bar
+
 ]
