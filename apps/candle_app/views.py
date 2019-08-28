@@ -3,13 +3,14 @@ from django.contrib import messages
 import bcrypt
 from .models import *
 from datetime import datetime
-from django.db.models import Q
+from django.db.models import Q, Sum
+import random, string
 
 def index(request):
     print("*"*50, "I am in index")
     return render(request,"candle_app/index.html")
 
-## testing push -- messy
+# registration
 def check_registration(request):
     print("*"*50, "I am in index")
     errors=User.objects.login_validator(request.POST)
@@ -25,6 +26,7 @@ def check_registration(request):
         return redirect("/dashboard")
         # return HttpResponse("sdjyusdy")
 
+# login
 def check_login(request):
     print("*"*50, "I am in check_login")
     try:
@@ -46,41 +48,43 @@ def check_login(request):
         messages.error(request, "Wrong Email!!!")
         return redirect("/")
 
-
+# dashboard - all the products in our inventories
 def dashboard(request):
     print("*"*50, "I am in dashboard")
     if 'right_user_id' not in request.session:
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
+    num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
     product=Product.objects.all()
     context={
         'user':user,
         'all_products':product,
-        'range' : range(1,11)
+        'range' : range(1,11),
+        'num_items_in_cart' : num_items_in_cart
     } 
     return render(request,"candle_app/dashboard.html", context)
  
-
+# logoff. not deleting items in the cart even after loggin out
 def logoff(request):
     print("*"*50, "I am in logoff")
     if 'right_user_id' not in request.session:
         return redirect("/")
-    Order.objects.all().delete()
+    # Order.objects.all().delete()
     request.session.clear()
     return redirect("/")
 
+# detail - shows product detail when user clicks it.
 def detail(request, product_id):
-    print("*"*50, "I am in add")
+    print("*"*50, "I am in detail")
     if 'right_user_id' not in request.session:
         return redirect("/") 
     context={
         'product': Product.objects.get(id=product_id),
         'user':User.objects.get(id=request.session['right_user_id']),
-
     }
     return render(request, "candle_app/detail.html", context)
 
-
+# add - add items to cart
 def add(request, product_id):
     print("*"*50, "I am in add")
     if 'right_user_id' not in request.session:
@@ -88,40 +92,72 @@ def add(request, product_id):
     quantity=request.POST['quantity']
     user=User.objects.get(id=request.session['right_user_id'])
     product=Product.objects.get(id=product_id)
+    # add items to the cart
     Order.objects.create(cart_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
-    return redirect("/dashboard")
+    num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
+    context = {"num_items_in_cart":num_items_in_cart}
+    print ("context: ", context)
+    return render(request, 'candle_app/partials/num_items_cart.html', context)
+    # return redirect("/dashboard")
 
+# cart - show items in the cart
 def cart(request):
     print("*"*50, "I am in cart")
     if 'right_user_id' not in request.session:
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
-    orders=Order.objects.filter(cart_id=request.session['cart_id'], user=user)
-    total=0
+    orders=Order.objects.filter(user=user)
+    total=0.0
     for order in orders:
-        total+=order.quantity*order.product.price
+        total += order.quantity*order.product.price
     context={
         'orders':orders,
         'user':user,
-        'total':total,
+        'total':f"${total}",
     }
     return render(request,"candle_app/cart.html", context)
 
+# history - show order (purchased) history
 def history(request):
     print("*"*50, "I am in history")
     if 'right_user_id' not in request.session:
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
-    user_orders=History.objects.filter(user=user)
+    # user_orders=History.objects.filter(user=user)
+    
+    # collect order information by history_id
+    history_ids = History.objects.all().values_list('history_id').distinct()
+    history_order_set = []
+    for history_id in history_ids :
+        history_id = history_id[0] # get unique history id
+
+        # get items ordered under history_id
+        orders = History.objects.filter(history_id=history_id)
+        orders_set = []
+        total_price = 0.0
+        for order in orders :
+            subtotal_price = (order.quantity * order.product.price)
+            product_name_with_size = f"{order.product.name} ({order.product.size})"
+            orders_set.append((product_name_with_size, order.quantity, subtotal_price))
+            total_price += subtotal_price
+
+        history_order_set.append({"history_id" : history_id, 
+                        "orders_set" : orders_set,
+                        "total_price" : total_price,
+                        "created_at" : order.created_at
+                        })
+    # sort by created_at
+    history_order_set = sorted(history_order_set, key=lambda i : i['created_at'], reverse=True)
     context={
         'user':user,
-        'user_orders':user_orders,
+        # 'user_histories':user_histories
+        'history_order_set' : history_order_set
     }
     return render(request,"candle_app/history.html", context)
 
-
+# remove - remove from the cart
 def remove(request, order_id):
-    print("*"*50, "I am in history")
+    print("*"*50, "I am in cart")
     if 'right_user_id' not in request.session:
         return redirect("/")
     order=Order.objects.get(id=order_id)
@@ -188,7 +224,7 @@ def search_ajax(request) :
     context = {"products_list" : product_result, 'range': range(10)}
     return render(request, 'candle_app/search_ajax_img.html', context)
 
-
+# helper function for checking a product has list of strings in their name
 def productStringContains(string, word_list) :
     # check if string contains all the word in word_list
     string = string.lower()
@@ -198,15 +234,35 @@ def productStringContains(string, word_list) :
             return False
     return True
 
+# buy - 
 def buy(request):
     print("*"*50, "I am in buy")
     if 'right_user_id' not in request.session:
         return redirect("/")
+    user = User.objects.get(id=request.session['right_user_id'])
     context={
-        'user': User.objects.get(id=request.session['right_user_id'])
+        'user': user
     }
-    for order in Order.objects.all():
-        History.objects.create(user=order.user,product=order.product,quantity=order.quantity)
-    Order.objects.all().delete()
+
+    # create a unique history id to be able to keep track of items ordered (purchased) at once
+    purchased_at = str(datetime.now())
+    history_id = f"{user.id}_{purchased_at}_{randomword(10)}"
+    while (True) :
+        history_with_id = History.objects.filter(history_id=history_id)
+        if (len(history_with_id) == 0) :
+            break
+        # create another history id
+        history_id = f"{user.id}_{purchased_at}_{randomword(10)}"
+
+    # for order in Order.objects.all():
+    for order in Order.objects.filter(user=user) :
+        History.objects.create(history_id=history_id, user=user, product=order.product, quantity=order.quantity)
+    # Order.objects.all().delete()
+    Order.objects.filter(user=user).delete()
     return render (request,"candle_app/confirm.html", context)
    
+
+# helper function to generate a random string
+def randomword(length):
+   letters = string.ascii_lowercase
+   return ''.join(random.choice(letters) for i in range(length))

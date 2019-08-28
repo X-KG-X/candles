@@ -28,22 +28,27 @@
                 <table class="table">
                     <thead class="thead-dark">
                         <tr>
-                        <th scope="col">Order Id</th>
+                        <th scope="col">#</th>
                         <th scope="col">Date</th>
                         <th scope="col">Name</th>
                         <th scope="col">Total</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for order in user_orders %}
-                        <tr>
-                        <td> {{order.id}}</td>
-                        <td>{{order.created_at}}</td>
-                        <td>{{order.product.name}}</td>
-                        <td>{% widthratio order.product.price 1 order.quantity %}</td>
-                        </tr>
+                        {% for history_set in history_order_set %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{history_set.created_at}}</td>
+                                <td>
+                                    <ul>
+                                        {% for order_set in history_set.orders_set %}
+                                            <li>{{order_set.0}} : {{order_set.1}} (${{order_set.2}})</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                                <td>${{history_set.total_price}}</td>
+                            </tr>
                         {% endfor %}
-
                     </tbody>
                 </table>
             </div>

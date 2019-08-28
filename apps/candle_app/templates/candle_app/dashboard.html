@@ -18,10 +18,13 @@
     </head>
     <body class="container mt-5 mb-5">
         <div class="row">
-            <h3 class="col-8">Welcome, {{user.first_name}}! </h3>
+            <h3 class="col-7">Welcome, {{user.first_name}}! </h3>
             <a href="/history" class="btn btn-success ">Order History</a>
 
-            <a href="/cart" class="btn btn-success ml-2">Your Cart</a>
+            <a href="/cart" class="btn btn-success ml-2">
+                Your Cart
+                <span id='num_items' class="bg-round">{{num_items_in_cart}}</span>
+            </a>
             <a href="/logoff"  class="col ml-2 btn btn-primary">Log Out</a>
         </div>  
 
@@ -53,9 +56,9 @@
                 <p class="text-center m-0">{{product.name}} 
                 <p class="text-center m-0">({{product.size}})</p>
 
-                <form action="/add/{{product.id}}" method="post" class="mt-3">
+                <form action="/add/{{product.id}}" method="post" class="mt-3 add_form" product_id="{{product.id}}">
                     {% csrf_token %}
-                    <select name="quantity" class="col-sm-2 offset-sm-2">
+                    <select name="quantity" class="col-sm-2 offset-sm-2 select_count">
                         {% for i in range %}
                             <option value={{i}}>{{i}}</option>
                         {% endfor %}
@@ -85,6 +88,22 @@
                         $('#product_list').html(serverResponse);
                     }
                 })
+            })
+
+            $('.add_form').submit(function(e) {
+                e.preventDefault();
+                var data = $(this).serialize();
+                $.ajax({
+                    url: '/add/' + $(this).attr('product_id'),
+                    method: 'post',
+                    data: data,
+                    success : function(serverResponse) {
+                        $('#num_items').html(serverResponse)
+                        $('.select_count').val(1);
+                    }
+                })
+                // update the number of items next to 'Your Cart'
+
             })
         });
     </script>
