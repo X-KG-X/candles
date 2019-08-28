@@ -49,6 +49,7 @@ class Product(models.Model) :
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
+# Order class : for keeping track of items in CART
 class Order(models.Model) :
     cart_id = models.PositiveIntegerField()
     user= models.ForeignKey(User, related_name="order")
@@ -57,7 +58,9 @@ class Order(models.Model) :
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)
 
+# History class : for keeping track of ordered(purchased) history
 class History(models.Model) :
+    history_id=models.CharField(max_length=255) # another history id  for keeping track of orders made together
     user= models.ForeignKey(User, related_name="order_h")
     product = models.ForeignKey(Product, related_name="product_h")
     quantity=models.PositiveIntegerField()
