@@ -16,5 +16,11 @@ img {
      */
      border-radius: 40%;
      width: 40px;
-     background-color: red;
+     background-color: navy;
+     color: white;
+     padding: 3px;
+}
+
+.nav-link {
+    font-size: 28px;
 }

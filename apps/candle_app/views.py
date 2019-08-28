@@ -60,7 +60,7 @@ def dashboard(request):
         'user':user,
         'all_products':product,
         'range' : range(1,11),
-        'num_items_in_cart' : num_items_in_cart
+        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
     } 
     return render(request,"candle_app/dashboard.html", context)
  
@@ -78,9 +78,12 @@ def detail(request, product_id):
     print("*"*50, "I am in detail")
     if 'right_user_id' not in request.session:
         return redirect("/") 
+    user = User.objects.get(id=request.session['right_user_id'])
+    num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
     context={
         'product': Product.objects.get(id=product_id),
         'user':User.objects.get(id=request.session['right_user_id']),
+        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
     }
     return render(request, "candle_app/detail.html", context)
 
@@ -95,7 +98,7 @@ def add(request, product_id):
     # add items to the cart
     Order.objects.create(cart_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
-    context = {"num_items_in_cart":num_items_in_cart}
+    context = {'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 }
     print ("context: ", context)
     return render(request, 'candle_app/partials/num_items_cart.html', context)
     # return redirect("/dashboard")
@@ -110,10 +113,12 @@ def cart(request):
     total=0.0
     for order in orders:
         total += order.quantity*order.product.price
+    num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
     context={
         'orders':orders,
         'user':user,
         'total':f"${total}",
+        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
     }
     return render(request,"candle_app/cart.html", context)
 
@@ -148,10 +153,13 @@ def history(request):
                         })
     # sort by created_at
     history_order_set = sorted(history_order_set, key=lambda i : i['created_at'], reverse=True)
+    num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
+ 
     context={
         'user':user,
         # 'user_histories':user_histories
-        'history_order_set' : history_order_set
+        'history_order_set' : history_order_set,
+        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
     }
     return render(request,"candle_app/history.html", context)
 
@@ -190,12 +198,14 @@ def search_item(request) :
             product_result.append(product)
 
     num_search = len(product_result)
+    num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
     context = {
         'user':user,
         'keyword' : keyword,
         'num_search' : num_search,
         'products_list' : product_result,
         'range' : range(10),
+        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
     }
     return render(request, "candle_app/dashboard_searched.html", context)
 
@@ -240,9 +250,6 @@ def buy(request):
     if 'right_user_id' not in request.session:
         return redirect("/")
     user = User.objects.get(id=request.session['right_user_id'])
-    context={
-        'user': user
-    }
 
     # create a unique history id to be able to keep track of items ordered (purchased) at once
     purchased_at = str(datetime.now())
@@ -259,6 +266,11 @@ def buy(request):
         History.objects.create(history_id=history_id, user=user, product=order.product, quantity=order.quantity)
     # Order.objects.all().delete()
     Order.objects.filter(user=user).delete()
+    num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
+    context={
+        'user': user,
+        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
+    }
     return render (request,"candle_app/confirm.html", context)
    
 
