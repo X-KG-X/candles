@@ -28,13 +28,27 @@
                 <p>Item</p>
                 <p>Id: {{product.id}}</p>
                 <p>Name: {{product.name}}</p>
-                <p>Size: {{product.size}}</p>
+                <p>Size: {{product.size}} 
+                    {% if product.size == 'small' %}
+                        (2 oz)
+                    {% elif product.size == 'large' %}
+                        (7 oz)
+                    {% endif %}
+                </p>
                 <p>Fragrance: {{product.fragrance}}</p>
                 <p>Description: {{product.description}}</p>
                 <p>Price: {{product.price}}</p>
             </div>
             <div class="col-4">
-                <img src="{% static 'candle_app/images/test.jpeg' %}"> 
+                {% if product.size == "small" %}
+                    {% with 'candle_app/images/'|add:product.fragrance|add:'_2.jpg' as image_static %}
+                        <img src="{% static image_static %}"/> 
+                    {% endwith %}
+                {% elif product.size == "large" %}
+                    {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
+                        <img src="{% static image_static %}"/> 
+                    {% endwith %}
+                {% endif %}
             </div>
         </div>
         <div class="row">
