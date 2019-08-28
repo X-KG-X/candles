@@ -29,31 +29,6 @@ class loginManager(models.Manager):
         return errors
 
 
-# class tripManager(models.Manager):
-#     def trip_validator(self, postData):
-#         errors={}
-#         if len(postData['place'])==0:
-#             errors['place']="Need destination name"        
-#         elif len(postData['place'])<3:
-#             errors['place']="Destination should be at least 3 characters"
-
-#         if not postData['start']:
-#             errors['start']="Need start date"            
-#         elif datetime.strptime(postData['start'],'%Y-%m-%d')< datetime.now():
-#             errors['start']="start date should be in the future"
-
-#         if not postData['end']:
-#             errors['end']="Need end date"            
-#         if postData['end']< postData['start']:
-#             errors['date']="end date should be after start date"
-
-#         if len(postData['plan'])==0:
-#             errors['plan']="Need plan"        
-#         elif len(postData['plan'])<3:
-#             errors['plan']="Plan should be at least 3 characters"
-#         return errors
-
-
 class User(models.Model):
     first_name=models.CharField(max_length=45)
     last_name=models.CharField(max_length=45)
@@ -78,6 +53,13 @@ class Order(models.Model) :
     cart_id = models.PositiveIntegerField()
     user= models.ForeignKey(User, related_name="order")
     product = models.ForeignKey(Product, related_name="product")
+    quantity=models.PositiveIntegerField()
+    created_at=models.DateTimeField(auto_now_add=True)
+    updated_at=models.DateTimeField(auto_now=True)
+
+class History(models.Model) :
+    user= models.ForeignKey(User, related_name="order_h")
+    product = models.ForeignKey(Product, related_name="product_h")
     quantity=models.PositiveIntegerField()
     created_at=models.DateTimeField(auto_now_add=True)
     updated_at=models.DateTimeField(auto_now=True)

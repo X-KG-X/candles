@@ -55,7 +55,7 @@ def dashboard(request):
     context={
         'user':user,
         'all_products':product,
-        'range' : range(10)
+        'range' : range(1,11)
     } 
     return render(request,"candle_app/dashboard.html", context)
  
@@ -64,6 +64,7 @@ def logoff(request):
     print("*"*50, "I am in logoff")
     if 'right_user_id' not in request.session:
         return redirect("/")
+    Order.objects.all().delete()
     request.session.clear()
     return redirect("/")
 
@@ -87,7 +88,7 @@ def add(request, product_id):
     user=User.objects.get(id=request.session['right_user_id'])
     product=Product.objects.get(id=product_id)
     Order.objects.create(cart_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
-    return redirect("/cart")
+    return redirect("/dashboard")
 
 def cart(request):
     print("*"*50, "I am in cart")
@@ -110,7 +111,7 @@ def history(request):
     if 'right_user_id' not in request.session:
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
-    user_orders=Order.objects.filter(user=user)
+    user_orders=History.objects.filter(user=user)
     context={
         'user':user,
         'user_orders':user_orders,
@@ -170,3 +171,16 @@ def search_item(request) :
         } 
         # return render(request, "candle_app/dashboard.html", context)
         return render(request, "candle_app/dashboard_searched.html", context)
+
+def buy(request):
+    print("*"*50, "I am in buy")
+    if 'right_user_id' not in request.session:
+        return redirect("/")
+    context={
+        'user': User.objects.get(id=request.session['right_user_id'])
+    }
+    for order in Order.objects.all():
+        History.objects.create(user=order.user,product=order.product,quantity=order.quantity)
+    Order.objects.all().delete()
+    return render (request,"candle_app/confirm.html", context)
+   
