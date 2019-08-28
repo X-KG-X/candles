@@ -14,5 +14,5 @@ urlpatterns=[
     url(r'^logoff$', views.logoff),
 
     url(r'^search_item$', views.search_item), # search item with string from search bar
-
+    url(r'^search_ajax$', views.search_ajax), # show auto populated result while typing in search bar
 ]

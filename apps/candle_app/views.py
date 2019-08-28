@@ -3,6 +3,7 @@ from django.contrib import messages
 import bcrypt
 from .models import *
 from datetime import datetime
+from django.db.models import Q
 
 def index(request):
     print("*"*50, "I am in index")
@@ -137,36 +138,61 @@ def search_item(request) :
     if (keyword == "") :
         return redirect("/dashboard")
 
-    elif (keyword in ['large', 'small']) :
-        products_keyword_in_size = Product.objects.filter(size__icontains=keyword)
-        num_search = len(products_keyword_in_size)
-        context={
+    keyword_list = keyword.split()
+    keyword_complete = keyword_list[0:len(keyword_list)-1]
+    keyword_incomplete = keyword_list[len(keyword_list)-1]
+
+    # get products has typed_incomplete in their name
+    product_candidates = Product.objects.filter(Q(name__icontains=keyword_incomplete) | Q(size__icontains=keyword_incomplete))
+
+    product_result = []
+    # for each candidates - check if it has all the word in typed_complete
+    for product in product_candidates :
+        p_name = product.name + " " + product.size
+        if (productStringContains(p_name, keyword_complete)) :
+            product_result.append(product)
+
+    num_search = len(product_result)
+    context = {
         'user':user,
         'keyword' : keyword,
         'num_search' : num_search,
-        'products_keyword_in_size' : products_keyword_in_size,
+        'products_list' : product_result,
         'range' : range(10),
-        } 
-        
-        # return render(request, "candle_app/dashboard.html", context)
-        return render(request, "candle_app/dashboard_searched.html", context)
-    
-    else :
-        # keyword - search in product
-        products_keyword_in_name = Product.objects.filter(name__icontains=keyword)
-        products_keyword_in_desc = Product.objects.filter(description__icontains=keyword)
-        
-        num_search = len(products_keyword_in_name) + len(products_keyword_in_desc) 
-        # CHANGE THIS
-        # product = products_keyword_in_name
-        context={
-            'user':user,
-            'keyword' : keyword,
-            'num_search' : num_search,
-            # 'all_products':product,
-            'products_keyword_in_name' : products_keyword_in_name,
-            'products_keyword_in_desc' : products_keyword_in_desc,
-            'range' : range(10),
-        } 
-        # return render(request, "candle_app/dashboard.html", context)
-        return render(request, "candle_app/dashboard_searched.html", context)
+    }
+    return render(request, "candle_app/dashboard_searched.html", context)
+
+# search result while typing - AJAX
+def search_ajax(request) :
+    typed = request.POST['search'].lower()
+
+    if (len(typed) == 0) :
+        context = {"products_list" : Product.objects.all(), 'range': range(10)}
+        return render(request, 'candle_app/search_ajax_img.html', context)
+
+    typed_list = typed.split()
+    typed_complete = typed_list[0:(len(typed_list)-1)]
+    typed_incomplete = typed_list[len(typed_list)-1]
+
+    # get products has typed_incomplete in their name
+    product_candidates = Product.objects.filter(Q(name__icontains=typed_incomplete) | Q(size__icontains=typed_incomplete))
+
+    product_result = []
+    # for each candidates - check if it has all the word in typed_complete
+    for product in product_candidates :
+        p_name = product.name + " " + product.size
+        if (productStringContains(p_name, typed_complete)) :
+            product_result.append(product)
+
+    context = {"products_list" : product_result, 'range': range(10)}
+    return render(request, 'candle_app/search_ajax_img.html', context)
+
+
+def productStringContains(string, word_list) :
+    # check if string contains all the word in word_list
+    string = string.lower()
+    string_list = string.split()
+    for word in word_list :
+        if not word in string_list :
+            return False
+    return True
