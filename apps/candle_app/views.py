@@ -3,7 +3,7 @@ from django.contrib import messages
 import bcrypt
 from .models import *
 from datetime import datetime
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Min, F
 import random, string
 
 def index(request):
@@ -115,8 +115,13 @@ def cart(request):
     for order in orders:
         total += order.quantity*order.product.price
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
+    
+    # orders in the cart - group by product name / product size / fragrance and shows summed quantity, ..
+    orders_grouped = orders.values('product__name', 'product__size', 'product__fragrance').annotate(num_q=Sum('quantity'), 
+                price=Min('product__price'),sub_total=Sum(F('quantity')*F('product__price')))
     context={
-        'orders':orders,
+        # 'orders':orders,
+        'orders_grouped' : orders_grouped,
         'user':user,
         'total':f"${total}",
         'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 

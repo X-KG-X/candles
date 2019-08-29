@@ -15,16 +15,13 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
-
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
 
-
-
     </head>
     <body class="container">
-        
+        <header class="sticky-top">
         <nav class="navbar navbar-expand-lg navbar-light sticky-top" style="background-color: #e3f2fd;">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -50,6 +47,7 @@
                 </ul>
             </div>
         </nav>
+    </header>
 
         <div class="mt-30" id="searchbar">
             <form id="search_form" action="/search_item" method="post" class="form-inline my-2 my-lg-0">
@@ -67,19 +65,11 @@
                 <a href="/detail/{{product.id}}">
                     {% if product.size == "small" %}
                         {% with 'candle_app/images/'|add:product.fragrance|add:'_2.jpg' as image_static %}
-<<<<<<< HEAD
-                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}"/> 
+                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}" class="product_img"/> 
                         {% endwith %}
                     {% elif product.size == "large" %}
                         {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
-                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}"/> 
-=======
-                        <img src="{% static image_static %}" class="product_img"/> 
-                        {% endwith %}
-                    {% elif product.size == "large" %}
-                        {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
-                        <img src="{% static image_static %}" class="product_img"/> 
->>>>>>> 5b61bf4a171f755faf24f9d6a6aeef932c7e635d
+                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}" class="product_img"/> 
                         {% endwith %}
                     {% endif %}
                 </a>
@@ -89,13 +79,14 @@
 
                 <form action="/add/{{product.id}}" method="post" class="mt-3 add_form" product_id="{{product.id}}">
                     {% csrf_token %}
-                    <select name="quantity" class="col-sm-2 offset-sm-2 select_count">
-                        {% for i in range %}
-                            <option value={{i}}>{{i}}</option>
-                        {% endfor %}
-                    </select>
-
-                <input type="submit" class=" btn btn-primary btn-sm " value="Add to cart">
+                    <div class="row">
+                        <select name="quantity" class="col-sm-2 offset-sm-3 select_count">
+                            {% for i in range %}
+                                <option value={{i}}>{{i}}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit" class=" btn btn-primary btn-sm ml-3" value="Add to cart">
+                    </div>
                 </form>
             </div>
                 {% endfor %}  
