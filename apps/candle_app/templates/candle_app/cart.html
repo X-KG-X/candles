@@ -68,7 +68,7 @@
                         <td>{{order.price}}</td>
                         <td>{{order.sub_total}}</td>
                         <td>
-                            <a href="/cart" class="delete-btn" order_id="{{order.id}}" onclick="confirmDelete(this)"> 
+                            <a href="/cart" class="delete-btn" product_id="{{order.product__id}}" onclick="confirmDelete(this)"> 
                             Remove
                             </a>
                         </td>
@@ -102,7 +102,7 @@
         function confirmDelete(x) {
             console.log("clicked");
             if (confirm("Do you want to delete this item from your cart?")) {
-                x.href = "/remove/" + x.getAttribute("order_id");
+                x.href = "/remove/" + x.getAttribute("product_id");
             }
         }
     </script>

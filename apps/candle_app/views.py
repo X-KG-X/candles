@@ -98,6 +98,13 @@ def add(request, product_id):
     product=Product.objects.get(id=product_id)
     # add items to the cart
     Order.objects.create(cart_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
+    
+    # keep track of stocks in the product table
+    product.inventory = product.inventory - int(quantity)
+    product.save()
+    print("product:", product.name, product.inventory)
+
+    # keep track of number of items in the cart
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
     context = {'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 }
     print ("context: ", context)
@@ -117,7 +124,7 @@ def cart(request):
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
     
     # orders in the cart - group by product name / product size / fragrance and shows summed quantity, ..
-    orders_grouped = orders.values('product__name', 'product__size', 'product__fragrance').annotate(num_q=Sum('quantity'), 
+    orders_grouped = orders.values('product__id', 'product__name', 'product__size', 'product__fragrance').annotate(num_q=Sum('quantity'), 
                 price=Min('product__price'),sub_total=Sum(F('quantity')*F('product__price')))
     context={
         # 'orders':orders,
@@ -170,12 +177,21 @@ def history(request):
     return render(request,"candle_app/history.html", context)
 
 # remove - remove from the cart
-def remove(request, order_id):
+def remove(request, product_id):
     print("*"*50, "I am in cart")
     if 'right_user_id' not in request.session:
         return redirect("/")
-    order=Order.objects.get(id=order_id)
-    order.delete()
+    user = User.objects.get(id=request.session['right_user_id'])
+    orders=Order.objects.filter(product=Product.objects.get(id=product_id), user=user)
+    back_inventory = orders.aggregate(s=Sum('quantity'))['s']
+    orders.delete()
+
+    # put the quantity back to the inventory
+    product = Product.objects.get(id=product_id)
+    product.inventory = product.inventory + back_inventory
+    product.save()
+    print("product:", product.name, product.inventory)
+
     return redirect("/cart")
 
 # search keyword from search bar in product database
@@ -284,3 +300,16 @@ def buy(request):
 def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
+
+
+def update_select_options(request, product_id) :
+    if 'right_user_id' not in request.session:
+        return redirect("/")
+    user=User.objects.get(id=request.session['right_user_id'])
+    product=Product.objects.get(id=product_id)
+    context={
+        'user':user,
+        'product':product,
+        'range' : range(1,11),
+    } 
+    return render(request,"candle_app/partials/update_select_options.html", context)

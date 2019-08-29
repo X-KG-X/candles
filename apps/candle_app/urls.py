@@ -3,7 +3,7 @@ from . import views
 
 urlpatterns=[
     url(r'^buy$', views.buy),
-    url(r'^remove/(?P<order_id>\d+)$', views.remove),
+    url(r'^remove/(?P<product_id>\d+)$', views.remove),
     url(r'^history$', views.history),
     url(r'^cart$',views.cart),
     url(r'^add/(?P<product_id>\d+)$', views.add),
@@ -16,4 +16,5 @@ urlpatterns=[
 
     url(r'^search_item$', views.search_item), # search item with string from search bar
     url(r'^search_ajax$', views.search_ajax), # show auto populated result while typing in search bar
+    url(r'^update_select_options/(?P<product_id>\d+)$', views.update_select_options)
 ]
