@@ -55,10 +55,11 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% load tz %}
                             {% for history_set in history_order_set %}
                                 <tr>
                                     <td>{{forloop.counter}}</td>
-                                    <td>{{history_set.created_at}}</td>
+                                    <td>{{history_set.created_at|timezone:"America/Los_Angeles"}}</td>
                                     <td>
                                         <ul>
                                             {% for order_set in history_set.orders_set %}
