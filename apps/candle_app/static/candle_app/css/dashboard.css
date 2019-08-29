@@ -1,4 +1,4 @@
-img {
+.product_img {
     width: 200px;
     margin: 50px;
 }
@@ -24,3 +24,12 @@ img {
 .nav-link {
     font-size: 28px;
 }
+
+.detail_img {
+    width: 400px;
+    margin: 0;
+}
+/* 
+*{
+    border: 1px solid pink;
+} */

@@ -42,38 +42,39 @@
                 </ul>
             </div>
         </nav>
-
-        <div class=" mt-3 row">
-            <div class="col-8">
-                <table class="table">
-                    <thead class="thead-dark">
-                        <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for history_set in history_order_set %}
+        {% if history_order_set %}
+            <div class="mt-30 row">
+                <div class="col">
+                    <table class="table">
+                        <thead class="thead-dark">
                             <tr>
-                                <td>{{forloop.counter}}</td>
-                                <td>{{history_set.created_at}}</td>
-                                <td>
-                                    <ul>
-                                        {% for order_set in history_set.orders_set %}
-                                            <li>{{order_set.0}} : {{order_set.1}} (${{order_set.2}})</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                                <td>${{history_set.total_price}}</td>
+                            <th scope="col">#</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Total</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {% for history_set in history_order_set %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{history_set.created_at}}</td>
+                                    <td>
+                                        <ul>
+                                            {% for order_set in history_set.orders_set %}
+                                                <li>{{order_set.0}} : {{order_set.1}} (${{order_set.2}})</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td>${{history_set.total_price}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-
-
+        {% else %}
+            <h4 class="mt-3">You don't have any order history yet.</h4>
+        {% endif %}
     </body>
 </html>

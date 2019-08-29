@@ -83,7 +83,8 @@ def detail(request, product_id):
     context={
         'product': Product.objects.get(id=product_id),
         'user':User.objects.get(id=request.session['right_user_id']),
-        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
+        'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0,
+        'range' : range(1,11),
     }
     return render(request, "candle_app/detail.html", context)
 
@@ -204,7 +205,7 @@ def search_item(request) :
         'keyword' : keyword,
         'num_search' : num_search,
         'products_list' : product_result,
-        'range' : range(10),
+        'range' : range(1,11),
         'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
     }
     return render(request, "candle_app/dashboard_searched.html", context)
@@ -214,7 +215,7 @@ def search_ajax(request) :
     typed = request.POST['search'].lower()
 
     if (len(typed) == 0) :
-        context = {"products_list" : Product.objects.all(), 'range': range(10)}
+        context = {"products_list" : Product.objects.all(), 'range': range(1,11)}
         return render(request, 'candle_app/search_ajax_img.html', context)
 
     typed_list = typed.split()
@@ -231,7 +232,7 @@ def search_ajax(request) :
         if (productStringContains(p_name, typed_complete)) :
             product_result.append(product)
 
-    context = {"products_list" : product_result, 'range': range(10)}
+    context = {"products_list" : product_result, 'range': range(1,11)}
     return render(request, 'candle_app/search_ajax_img.html', context)
 
 # helper function for checking a product has list of strings in their name
