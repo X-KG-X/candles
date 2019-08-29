@@ -99,10 +99,11 @@ def add(request, product_id):
     # add items to the cart
     Order.objects.create(cart_id=request.session['cart_id'], user=user, product=product, quantity=quantity)
     
-    # keep track of stocks in the product table
-    product.inventory = product.inventory - int(quantity)
-    product.save()
-    print("product:", product.name, product.inventory)
+    # # keep track of stocks in the product table
+    # product.inventory = product.inventory - int(quantity)
+    # product.save()
+    # print("product:", product.name, product.inventory)
+    # MOVE TO DO IN update_select_options
 
     # keep track of number of items in the cart
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
@@ -110,6 +111,25 @@ def add(request, product_id):
     print ("context: ", context)
     return render(request, 'candle_app/partials/num_items_cart.html', context)
     # return redirect("/dashboard")
+
+def update_select_options(request, product_id) :
+    if 'right_user_id' not in request.session:
+        return redirect("/")
+    user=User.objects.get(id=request.session['right_user_id'])
+    product=Product.objects.get(id=product_id)
+    
+    # keep track of stocks in the product table
+    quantity=request.POST['quantity']
+    product.inventory = product.inventory - int(quantity)
+    product.save()
+    print("product:", product.name, product.inventory)
+
+    context={
+        'user':user,
+        'product':product,
+        'range' : range(1,11),
+    } 
+    return render(request,"candle_app/partials/update_select_options.html", context)
 
 # cart - show items in the cart
 def cart(request):
@@ -300,16 +320,3 @@ def buy(request):
 def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
-
-
-def update_select_options(request, product_id) :
-    if 'right_user_id' not in request.session:
-        return redirect("/")
-    user=User.objects.get(id=request.session['right_user_id'])
-    product=Product.objects.get(id=product_id)
-    context={
-        'user':user,
-        'product':product,
-        'range' : range(1,11),
-    } 
-    return render(request,"candle_app/partials/update_select_options.html", context)
