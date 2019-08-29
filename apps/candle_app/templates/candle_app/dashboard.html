@@ -67,19 +67,11 @@
                 <a href="/detail/{{product.id}}">
                     {% if product.size == "small" %}
                         {% with 'candle_app/images/'|add:product.fragrance|add:'_2.jpg' as image_static %}
-<<<<<<< HEAD
-                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}"/> 
+                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}" class="product_img"/> 
                         {% endwith %}
                     {% elif product.size == "large" %}
                         {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
-                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}"/> 
-=======
-                        <img src="{% static image_static %}" class="product_img"/> 
-                        {% endwith %}
-                    {% elif product.size == "large" %}
-                        {% with 'candle_app/images/'|add:product.fragrance|add:'_7.jpg' as image_static %}
-                        <img src="{% static image_static %}" class="product_img"/> 
->>>>>>> 5b61bf4a171f755faf24f9d6a6aeef932c7e635d
+                        <img data-toggle="tooltip" title= "{{product.description}}" src="{% static image_static %}" class="product_img"/> 
                         {% endwith %}
                     {% endif %}
                 </a>
