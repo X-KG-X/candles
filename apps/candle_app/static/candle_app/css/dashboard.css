@@ -1,4 +1,4 @@
-img {
+.product_img {
     width: 200px;
     margin: 50px;
 }
@@ -16,5 +16,20 @@ img {
      */
      border-radius: 40%;
      width: 40px;
-     background-color: red;
+     background-color: navy;
+     color: white;
+     padding: 3px;
 }
+
+.nav-link {
+    font-size: 28px;
+}
+
+.detail_img {
+    width: 400px;
+    margin: 0;
+}
+/* 
+*{
+    border: 1px solid pink;
+} */
