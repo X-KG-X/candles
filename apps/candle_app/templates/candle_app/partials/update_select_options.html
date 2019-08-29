@@ -1,6 +1,6 @@
 {% csrf_token %}
 <div class="row">
-    {% if product.inventory == 0 %}
+    {% if product.inventory <= 0 %}
         <p class="soldout_msg col-sm-2 offset-sm-3">Sold Out</p>
     {% else %}
         <select name="quantity" class="col-sm-2 offset-sm-3 select_count">
@@ -10,6 +10,6 @@
                 {% endif %}
             {% endfor %}
         </select>
+        <input type="submit" class=" btn btn-primary btn-sm ml-3" value="Add to cart">
     {% endif %}
-    <input type="submit" class=" btn btn-primary btn-sm ml-3" value="Add to cart">
 </div>
