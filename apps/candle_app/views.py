@@ -6,6 +6,10 @@ from datetime import datetime
 from django.db.models import Q, Sum, Min, F
 import random, string
 
+from django.core.mail import send_mail
+from django.conf import settings
+
+
 def index(request):
     print("*"*50, "I am in index")
     return render(request,"candle_app/index.html")
@@ -172,7 +176,7 @@ def history(request):
         history_id = history_id[0] # get unique history id
 
         # get items ordered under history_id
-        orders = History.objects.filter(history_id=history_id)
+        orders = History.objects.filter(history_id=history_id, user=user)
         orders_set = []
         total_price = 0.0
         for order in orders :
@@ -308,6 +312,14 @@ def buy(request):
     # for order in Order.objects.all():
     for order in Order.objects.filter(user=user) :
         History.objects.create(history_id=history_id, user=user, product=order.product, quantity=order.quantity)
+
+     #send confirmation email
+    subject = 'Thank you for your purchase'
+    message = 'It means a world to us that you have chosen our Brand! Enjoy our Candles. Thank you again!'
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+    send_mail( subject, message, email_from, recipient_list )
+        
     # Order.objects.all().delete()
     Order.objects.filter(user=user).delete()
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
@@ -321,3 +333,40 @@ def buy(request):
 def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
+
+# google login - test
+def google_login(request) :
+    print ("## I'm in google login test")
+    print (request)
+    print ("email:", request.GET['email'])
+    print ("name:",request.GET['name'])
+    email = request.GET['email']
+    name = request.GET['name']
+
+    name_list = name.split()
+    first_name = name_list[0]
+    last_name = "XX"
+    
+    if (len(name_list) > 1) :   
+        last_name = name_list[1]
+
+    user = User.objects.filter(email=email)
+    if (not user) :
+        user = User.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=randomword(8)
+        )
+        request.session['right_user_id'] = user.id
+        request.session['cart_id']=1
+        print (request.session['right_user_id'])
+        # return redirect('/dashboard')'
+        return HttpResponse("anything")
+    else : 
+        request.session['right_user_id'] = user[0].id
+        request.session['cart_id']=1
+        print (request.session['right_user_id'])
+        # return redirect('/dashboard')
+        return HttpResponse("anything")
+    # return HttpResponse("testing")
