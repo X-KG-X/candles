@@ -165,7 +165,8 @@ def history(request):
     # user_orders=History.objects.filter(user=user)
     
     # collect order information by history_id
-    history_ids = History.objects.all().values_list('history_id').distinct()
+    # history_ids = History.objects.all().values_list('history_id').distinct()
+    history_ids = History.objects.filter(user=user).values_list('history_id').distinct()
     history_order_set = []
     for history_id in history_ids :
         history_id = history_id[0] # get unique history id
@@ -315,44 +316,8 @@ def buy(request):
         'num_items_in_cart':num_items_in_cart if num_items_in_cart != None else 0 
     }
     return render (request,"candle_app/confirm.html", context)
-   
 
 # helper function to generate a random string
 def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
-
-# google login - test
-def google_login(request) :
-    print ("## I'm in google login test")
-    print (request)
-    print ("email:", request.GET['email'])
-    print ("name:",request.GET['name'])
-    email = request.GET['email']
-    name = request.GET['name']
-
-    name_list = name.split()
-    first_name = name_list[0]
-    last_name = "XX"
-    
-    if (len(name_list) > 1) :   
-        last_name = name_list[1]
-
-    user = User.objects.filter(email=email)
-    if (not user) :
-        user = User.objects.create(
-            first_name=first_name,
-            last_name=last_name,
-            email=email,
-            password=randomword(8)
-        )
-        request.session['right_user_id'] = user.id
-        print (request.session['right_user_id'])
-        # return redirect('/dashboard')'
-        return HttpResponse("anything")
-    else : 
-        request.session['right_user_id'] = user[0].id
-        print (request.session['right_user_id'])
-        # return redirect('/dashboard')
-        return HttpResponse("anything")
-    # return HttpResponse("testing")
