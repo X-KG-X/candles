@@ -56,6 +56,7 @@ def check_login(request):
 def dashboard(request):
     print("*"*50, "I am in dashboard")
     if 'right_user_id' not in request.session:
+        print ("right user id not exist!!")
         return redirect("/")
     user=User.objects.get(id=request.session['right_user_id'])
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
@@ -332,3 +333,38 @@ def buy(request):
 def randomword(length):
    letters = string.ascii_lowercase
    return ''.join(random.choice(letters) for i in range(length))
+
+# google login - test
+def google_login(request) :
+    print ("## I'm in google login test")
+    print (request)
+    print ("email:", request.GET['email'])
+    print ("name:",request.GET['name'])
+    email = request.GET['email']
+    name = request.GET['name']
+
+    name_list = name.split()
+    first_name = name_list[0]
+    last_name = "XX"
+    
+    if (len(name_list) > 1) :   
+        last_name = name_list[1]
+
+    user = User.objects.filter(email=email)
+    if (not user) :
+        user = User.objects.create(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=randomword(8)
+        )
+        request.session['right_user_id'] = user.id
+        print (request.session['right_user_id'])
+        # return redirect('/dashboard')'
+        return HttpResponse("anything")
+    else : 
+        request.session['right_user_id'] = user[0].id
+        print (request.session['right_user_id'])
+        # return redirect('/dashboard')
+        return HttpResponse("anything")
+    # return HttpResponse("testing")

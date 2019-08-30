@@ -16,5 +16,7 @@ urlpatterns=[
 
     url(r'^search_item$', views.search_item), # search item with string from search bar
     url(r'^search_ajax$', views.search_ajax), # show auto populated result while typing in search bar
-    url(r'^update_select_options/(?P<product_id>\d+)$', views.update_select_options)
+    url(r'^update_select_options/(?P<product_id>\d+)$', views.update_select_options),
+
+    url(r'^google_login', views.google_login),
 ]
