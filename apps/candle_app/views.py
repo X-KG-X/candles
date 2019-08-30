@@ -175,7 +175,7 @@ def history(request):
         history_id = history_id[0] # get unique history id
 
         # get items ordered under history_id
-        orders = History.objects.filter(history_id=history_id)
+        orders = History.objects.filter(history_id=history_id, user=user)
         orders_set = []
         total_price = 0.0
         for order in orders :
