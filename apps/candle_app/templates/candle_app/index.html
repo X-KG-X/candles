@@ -5,7 +5,7 @@
         <!-- Required meta tags -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+        <meta name="google-signin-client_id" content="617159484498-cg5cks4do5cgdmbku3an7ipptm3cbk3c.apps.googleusercontent.com">
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
         <!-- Optional JavaScript -->
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -13,6 +13,12 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
         
+        <script src="https://apis.google.com/js/platform.js" async defer></script>
+
+        <link rel="shortcut icon" href="">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
     </head>
     <body class="container w-50 mt-5 text-center">
         <div class="row">
@@ -41,7 +47,11 @@
                     {% csrf_token %}
                     <p>Email <input type="text" name="login_email" class="float-right"></p>
                     <p>Password     <input type="password" name="login_pwd" class="float-right"></p>
-                    <input type="submit" value="Log In" class="float-right btn btn-success">
+                    <div class="row offset-sm-5">
+                            <input type="submit" value="Log In" class="btn btn-success">
+                            <div class="g-signin2 col-sm-1" data-onsuccess="onSignIn" id="gSignin" ></div>
+                    </div>
+                    
                 </form>
             </div>
         </div>
@@ -56,4 +66,30 @@
         </ul>
         {% endif %}
     </body>
+    <script>
+    function onSignIn(googleUser) {
+        var profile = googleUser.getBasicProfile();
+        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+        console.log('Name: ' + profile.getName());
+        console.log('Image URL: ' + profile.getImageUrl());
+        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+        
+        $.ajax({
+            url: 'google_login',
+            method: 'get',
+            data : {
+                'email' : profile.getEmail(),
+                'name' : profile.getName()
+            },
+            success : function(s) {
+                // location.href="/dashboard"
+                // window.location.href = '/dashboard'
+                window.location.href = "/dashboard"
+                console.log("ajax in onSignin called")
+            }
+        })
+        
+        }
+
+    </script>
 </html>
