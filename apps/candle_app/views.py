@@ -6,6 +6,10 @@ from datetime import datetime
 from django.db.models import Q, Sum, Min, F
 import random, string
 
+from django.core.mail import send_mail
+from django.conf import settings
+
+
 def index(request):
     print("*"*50, "I am in index")
     return render(request,"candle_app/index.html")
@@ -306,6 +310,14 @@ def buy(request):
     # for order in Order.objects.all():
     for order in Order.objects.filter(user=user) :
         History.objects.create(history_id=history_id, user=user, product=order.product, quantity=order.quantity)
+
+     #send confirmation email
+    subject = 'Thank you for your purchase'
+    message = 'It means a world to us that you have chosen our Brand! Enjoy our Candles. Thank you again!'
+    email_from = settings.EMAIL_HOST_USER
+    recipient_list = [user.email]
+    send_mail( subject, message, email_from, recipient_list )
+        
     # Order.objects.all().delete()
     Order.objects.filter(user=user).delete()
     num_items_in_cart = Order.objects.filter(user=user).aggregate(total_quantity=Sum('quantity'))['total_quantity'] 
